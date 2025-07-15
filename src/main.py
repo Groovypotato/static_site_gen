@@ -1,6 +1,11 @@
 from textnode import markdown_to_html_node,extract_title
 import shutil
 import os
+import sys
+
+basepath = "/"
+if sys.argv[1]:
+    basepath = sys.argv[1]
 
 def copy_files_from_dir(source_directory,destination_directory):
     files_copied = []
@@ -40,7 +45,7 @@ def generate_page(from_path, template_path, dest_path):
         print(f"Error: {from_path} not found.")
     HTML_string = str(markdown_to_html_node(markdown_file).to_html())
     title = extract_title(markdown_file)
-    replacements = template_file.replace("{{ Title }}",title).replace("{{ Content }}",HTML_string)
+    replacements = template_file.replace("{{ Title }}",title).replace("{{ Content }}",HTML_string).replace('href="/',f'href="{basepath}').replace('src="/',f'src="{basepath}')
     if os.path.exists(dest_path):
         with open(f"{dest_path}/index.html", "w") as new_index:
             new_index.write(replacements)
@@ -74,8 +79,8 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
             generate_pages_recursive(f"{dir_path_content}/{item}",template_path,f"{dest_dir_path}/{item}")
 
 def main():
-   copy_files_from_dir("./static","./public")
-   generate_pages_recursive("./content","./template.html","./public")
+   copy_files_from_dir("./static","./docs")
+   generate_pages_recursive("./content","./template.html","./docs")
 
 if __name__ == "__main__":
     main()
